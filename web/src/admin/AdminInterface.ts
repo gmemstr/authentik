@@ -1,4 +1,5 @@
 import { ROUTES } from "@goauthentik/admin/Routes";
+import { OAuthInterface } from "@goauthentik/app/common/oauth/interface";
 import { DEFAULT_CONFIG } from "@goauthentik/common/api/config";
 import {
     EVENT_API_DRAWER_TOGGLE,
@@ -9,7 +10,6 @@ import {
 import { configureSentry } from "@goauthentik/common/sentry";
 import { me } from "@goauthentik/common/users";
 import { WebsocketClient } from "@goauthentik/common/ws";
-import { Interface } from "@goauthentik/elements/Base";
 import "@goauthentik/elements/ak-locale-context";
 import "@goauthentik/elements/enterprise/EnterpriseStatusBanner";
 import "@goauthentik/elements/messages/MessageContainer";
@@ -43,7 +43,7 @@ import {
 } from "@goauthentik/api";
 
 @customElement("ak-interface-admin")
-export class AdminInterface extends Interface {
+export class AdminInterface extends OAuthInterface {
     @property({ type: Boolean })
     sidebarOpen = true;
 
@@ -112,7 +112,8 @@ export class AdminInterface extends Interface {
         });
     }
 
-    async firstUpdated(): Promise<void> {
+    async firstUpdated(_changedProperties: Map<PropertyKey, unknown>): Promise<void> {
+        super.firstUpdated(_changedProperties);
         configureSentry(true);
         this.version = await new AdminApi(DEFAULT_CONFIG).adminVersionRetrieve();
         this.user = await me();
