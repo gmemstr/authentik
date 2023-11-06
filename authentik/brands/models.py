@@ -1,4 +1,4 @@
-"""tenant models"""
+"""brand models"""
 from uuid import uuid4
 
 from django.db import models
@@ -14,13 +14,13 @@ from authentik.lib.utils.time import timedelta_string_validator
 LOGGER = get_logger()
 
 
-class Tenant(SerializerModel):
-    """Single tenant"""
+class Brand(SerializerModel):
+    """Single brand"""
 
-    tenant_uuid = models.UUIDField(primary_key=True, editable=False, default=uuid4)
+    brand_uuid = models.UUIDField(primary_key=True, editable=False, default=uuid4)
     domain = models.TextField(
         help_text=_(
-            "Domain that activates this tenant. Can be a superset, i.e. `a.b` for `aa.b` and `ba.b`"
+            "Domain that activates this brand. Can be a superset, i.e. `a.b` for `aa.b` and `ba.b`"
         )
     )
     default = models.BooleanField(
@@ -33,22 +33,22 @@ class Tenant(SerializerModel):
     branding_favicon = models.TextField(default="/static/dist/assets/icons/icon.png")
 
     flow_authentication = models.ForeignKey(
-        Flow, null=True, on_delete=models.SET_NULL, related_name="tenant_authentication"
+        Flow, null=True, on_delete=models.SET_NULL, related_name="brand_authentication"
     )
     flow_invalidation = models.ForeignKey(
-        Flow, null=True, on_delete=models.SET_NULL, related_name="tenant_invalidation"
+        Flow, null=True, on_delete=models.SET_NULL, related_name="brand_invalidation"
     )
     flow_recovery = models.ForeignKey(
-        Flow, null=True, on_delete=models.SET_NULL, related_name="tenant_recovery"
+        Flow, null=True, on_delete=models.SET_NULL, related_name="brand_recovery"
     )
     flow_unenrollment = models.ForeignKey(
-        Flow, null=True, on_delete=models.SET_NULL, related_name="tenant_unenrollment"
+        Flow, null=True, on_delete=models.SET_NULL, related_name="brand_unenrollment"
     )
     flow_user_settings = models.ForeignKey(
-        Flow, null=True, on_delete=models.SET_NULL, related_name="tenant_user_settings"
+        Flow, null=True, on_delete=models.SET_NULL, related_name="brand_user_settings"
     )
     flow_device_code = models.ForeignKey(
-        Flow, null=True, on_delete=models.SET_NULL, related_name="tenant_device_code"
+        Flow, null=True, on_delete=models.SET_NULL, related_name="brand_device_code"
     )
 
     event_retention = models.TextField(
@@ -70,9 +70,9 @@ class Tenant(SerializerModel):
 
     @property
     def serializer(self) -> Serializer:
-        from authentik.tenants.api import TenantSerializer
+        from authentik.brands.api import BrandSerializer
 
-        return TenantSerializer
+        return BrandSerializer
 
     @property
     def default_locale(self) -> str:
@@ -86,9 +86,9 @@ class Tenant(SerializerModel):
 
     def __str__(self) -> str:
         if self.default:
-            return "Default tenant"
-        return f"Tenant {self.domain}"
+            return "Default brand"
+        return f"Brand {self.domain}"
 
     class Meta:
-        verbose_name = _("Tenant")
-        verbose_name_plural = _("Tenants")
+        verbose_name = _("Brand")
+        verbose_name_plural = _("Brand")

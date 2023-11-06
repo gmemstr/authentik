@@ -1,4 +1,4 @@
-"""Serializer for tenant models"""
+"""Serializer for brands models"""
 from typing import Any
 
 from django.db import models
@@ -14,10 +14,10 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework.viewsets import ModelViewSet
 
 from authentik.api.authorization import SecretKeyFilter
+from authentik.brands.models import Brand
 from authentik.core.api.used_by import UsedByMixin
 from authentik.core.api.utils import PassiveSerializer
 from authentik.lib.config import CONFIG
-from authentik.tenants.models import Tenant
 
 
 class FooterLinkSerializer(PassiveSerializer):
@@ -27,22 +27,22 @@ class FooterLinkSerializer(PassiveSerializer):
     name = CharField(read_only=True)
 
 
-class TenantSerializer(ModelSerializer):
-    """Tenant Serializer"""
+class BrandSerializer(ModelSerializer):
+    """Brand Serializer"""
 
     def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
         if attrs.get("default", False):
-            tenants = Tenant.objects.filter(default=True)
+            brands = Brand.objects.filter(default=True)
             if self.instance:
-                tenants = tenants.exclude(pk=self.instance.pk)
-            if tenants.exists():
-                raise ValidationError({"default": "Only a single Tenant can be set as default."})
+                brands = brands.exclude(pk=self.instance.pk)
+            if brands.exists():
+                raise ValidationError({"default": "Only a single brand can be set as default."})
         return super().validate(attrs)
 
     class Meta:
-        model = Tenant
+        model = Brand
         fields = [
-            "tenant_uuid",
+            "brand_uuid",
             "domain",
             "default",
             "branding_title",
@@ -68,8 +68,8 @@ class Themes(models.TextChoices):
     DARK = "dark"
 
 
-class CurrentTenantSerializer(PassiveSerializer):
-    """Partial tenant information for styling"""
+class CurrentBrandSerializer(PassiveSerializer):
+    """Partial brand information for styling"""
 
     matched_domain = CharField(source="domain")
     branding_title = CharField()
@@ -97,18 +97,18 @@ class CurrentTenantSerializer(PassiveSerializer):
     default_locale = CharField(read_only=True)
 
 
-class TenantViewSet(UsedByMixin, ModelViewSet):
-    """Tenant Viewset"""
+class BrandViewSet(UsedByMixin, ModelViewSet):
+    """Brand Viewset"""
 
-    queryset = Tenant.objects.all()
-    serializer_class = TenantSerializer
+    queryset = Brand.objects.all()
+    serializer_class = BrandSerializer
     search_fields = [
         "domain",
         "branding_title",
         "web_certificate__name",
     ]
     filterset_fields = [
-        "tenant_uuid",
+        "brand_uuid",
         "domain",
         "default",
         "branding_title",
@@ -128,10 +128,10 @@ class TenantViewSet(UsedByMixin, ModelViewSet):
     filter_backends = [SecretKeyFilter, OrderingFilter, SearchFilter]
 
     @extend_schema(
-        responses=CurrentTenantSerializer(many=False),
+        responses=CurrentBrandSerializer(many=False),
     )
     @action(methods=["GET"], detail=False, permission_classes=[AllowAny])
     def current(self, request: Request) -> Response:
-        """Get current tenant"""
-        tenant: Tenant = request._request.tenant
-        return Response(CurrentTenantSerializer(tenant).data)
+        """Get current brand"""
+        brand: Brand = request._request.brand
+        return Response(CurrentBrandSerializer(brand).data)

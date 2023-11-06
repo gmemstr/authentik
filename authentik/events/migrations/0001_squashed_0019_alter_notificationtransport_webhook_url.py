@@ -72,7 +72,7 @@ class Migration(migrations.Migration):
         ("authentik_events", "0013_auto_20210209_1657"),
         ("authentik_events", "0014_expiry"),
         ("authentik_events", "0015_alter_event_action"),
-        ("authentik_events", "0016_add_tenant"),
+        ("authentik_events", "0016_add_brand"),
         ("authentik_events", "0017_alter_event_action"),
         ("authentik_events", "0018_auto_20210911_2217"),
         ("authentik_events", "0019_alter_notificationtransport_webhook_url"),
@@ -304,8 +304,8 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="event",
-            name="tenant",
-            field=models.JSONField(blank=True, default=authentik.events.models.default_tenant),
+            name="brand",
+            field=models.JSONField(blank=True, default=authentik.events.models.default_brand),
         ),
         migrations.AlterField(
             model_name="event",
